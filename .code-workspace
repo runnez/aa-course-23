@@ -1,0 +1,28 @@
+{
+  "folders": [
+    {
+      "path": "packages/eslint-config-custom"
+    },
+    {
+      "path": "packages/eslint-config-custom-server"
+    },
+    {
+      "path": "packages/jest-presets"
+    },
+    {
+      "path": "packages/logger"
+    },
+    {
+      "path": "packages/tsconfig",
+    },
+    {
+      "path": "apps/popug-crm",
+    },
+    {
+      "path": "apps/popug-id",
+    },
+    {
+      "path": "apps/popug-ledger",
+    },
+  ]
+}
