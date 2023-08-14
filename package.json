@@ -1,5 +1,5 @@
 {
-  "name": "with-docker",
+  "name": "popug-federation",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,6 @@
     "lint": "turbo run lint",
     "test": "turbo run test"
   },
-  "dependencies": {},
   "devDependencies": {
     "eslint-config-custom": "*",
     "prettier": "^2.8.8",
