@@ -1,3 +1,7 @@
+### App design
+
+https://miro.com/app/board/uXjVMx-4b4c=/?share_link_id=586310069792
+
 ### Docker
 
 This repo is configured to be built with Docker, and Docker compose. To build all apps in this repo:
