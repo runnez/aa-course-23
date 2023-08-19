@@ -16,6 +16,9 @@
       "path": "packages/tsconfig",
     },
     {
+      "path": "packages/sdk",
+    },
+    {
       "path": "apps/popug-crm",
     },
     {
