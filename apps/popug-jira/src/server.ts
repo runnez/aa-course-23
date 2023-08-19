@@ -1,22 +1,11 @@
-import { json, urlencoded } from "body-parser";
-import express from "express";
-import morgan from "morgan";
-import cors from "cors";
+import Koa from 'koa';
+import zodRouter from 'koa-zod-router';
+import { createTaskRoute } from './controllers/task.controller';
 
 export const createServer = () => {
-  const app = express();
-  app
-    .disable("x-powered-by")
-    .use(morgan("dev"))
-    .use(urlencoded({ extended: true }))
-    .use(json())
-    .use(cors())
-    .get("/message/:name", (req, res) => {
-      return res.json({ message: `hello ${req.params.name}` });
-    })
-    .get("/healthz", (req, res) => {
-      return res.json({ ok: true });
-    });
-
+  const app = new Koa();
+  const router = zodRouter();
+  router.register(createTaskRoute);
+  app.use(router.routes());
   return app;
-};
+}
