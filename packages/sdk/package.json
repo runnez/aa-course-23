@@ -1,0 +1,12 @@
+{
+  "name": "sdk",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "axios": "^1.4.0"
+  }
+}
