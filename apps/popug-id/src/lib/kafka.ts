@@ -13,7 +13,7 @@ export const sendEvent = async (topic: string, event: {}) => {
     topic,
     messages: [
       {
-        key: 'payload',
+        key: 'event',
         value: JSON.stringify(event),
       },
     ],

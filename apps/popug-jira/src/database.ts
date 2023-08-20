@@ -2,6 +2,7 @@ import { Pool } from 'pg'
 import { Kysely, PostgresDialect } from 'kysely'
 import { TaskTable } from './models/task.model'
 import { AccountTable } from './models/account.model';
+import { dbPort } from './config';
 
 export interface Database {
   accounts: AccountTable;
@@ -12,8 +13,9 @@ const dialect = new PostgresDialect({
   pool: new Pool({
     database: 'popugdb',
     host: 'localhost',
-    user: 'popugdbdbuser',
-    port: 5434,
+    password: 'popugdbpassword',
+    user: 'popugdbuser',
+    port: dbPort,
     max: 10,
   })
 });

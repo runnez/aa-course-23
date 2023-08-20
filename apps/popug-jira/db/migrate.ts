@@ -9,12 +9,14 @@ import {
 } from 'kysely'
 
 import { Database } from '../src/database';
+import { dbPort } from '../src/config';
 
 async function migrateToLatest() {
   const db = new Kysely<Database>({
     dialect: new PostgresDialect({
       pool: new Pool({
         host: 'localhost',
+        port: dbPort,
         database: 'popugdb',
         user: 'popugdbuser',
         password: 'popugdbpassword',

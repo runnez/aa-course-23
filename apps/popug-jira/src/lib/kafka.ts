@@ -7,13 +7,14 @@ export const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-export const sendEvent = async (event: {}) => {
-	await producer.connect()
+export const sendEvent = async (topic: string, event: {}) => {
+  console.log('sending event', topic, event);
+	await producer.connect();
   await producer.send({
-    topic: '',
+    topic,
     messages: [
       {
-        key: '1',
+        key: 'event',
         value: JSON.stringify(event),
       },
     ],

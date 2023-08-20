@@ -1,7 +1,8 @@
-// listen ACCOUNT.created;
-
 import { createAccount } from "../models/account.model";
 
-export function processEvent(payload: { account: {} }) {
-  createAccount(payload.account);
+export async function processAccountEvent({ name, payload }: { name: string, payload: {} }) {
+  console.log('processAccountEvent', name);
+  if (name === 'accountCreated') {
+    await createAccount((payload as any).account);
+  }
 }

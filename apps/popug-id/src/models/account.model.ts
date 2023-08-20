@@ -31,11 +31,8 @@ export const findAccountByEmailAndPassword = async (username: string, password: 
   if (!account) {
     return null;
   }
-  const encryptedPassword = await bcrypt.hash(password, 10);
-  if (account.password !== encryptedPassword) {
-    return null;
-  }
-  return account;
+  const result = await bcrypt.compare(password, account.password);
+  return result ? account : null;
 }
 
 export const findAccountById = async (id: number) => {
@@ -43,6 +40,6 @@ export const findAccountById = async (id: number) => {
     .selectFrom('accounts')
     .selectAll()
     .where('accounts.id', '=', id)
-    .executeTakeFirst();
+    .executeTakeFirstOrThrow();
   return account;
 }

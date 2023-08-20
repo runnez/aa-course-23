@@ -1,21 +1,42 @@
-import { createRouteSpec } from 'koa-zod-router';
 import { z } from 'zod';
-import { createTask } from '../models/task.model';
-import { sdk } from '../sdk';
+import { specFactory } from '../app';
+import { sendEvent } from '../lib/kafka';
+import { findUserAccounts } from '../models/account.model';
+import { createTask, findPendingTasks, findTasksByAssigneeId, updateTask } from '../models/task.model';
 
-export const createTaskRoute = createRouteSpec({
+export const getTasksRoute = specFactory.createRouteSpec({
+  method: 'get',
+  path: '/tasks',
+  handler: async (ctx) => {
+    const tasks = await findTasksByAssigneeId(ctx.state.account.accountId);
+    ctx.body = {
+      tasks,
+    };
+  },
+  validate: {
+    response: z.object({
+      tasks: z.array(z.object({
+        id: z.number(),
+        description: z.string(),
+        assigneeId: z.number(),
+        resolved: z.boolean(),
+      })),
+    }),
+  },
+});
+
+export const createTaskRoute = specFactory.createRouteSpec({
   method: 'post',
   path: '/tasks',
   handler: async (ctx) => {
     const { description, assigneeId } = ctx.request.body.task;
-    await sdk.auth.verify();
-    // auth
-    // assigneeId ???
     const task = await createTask({
       description,
       assigneeId,
+      resolved: false,
     });
-    // produce task.created event
+    await sendEvent('task', { name: 'taskCreated', payload: { task } });
+    await sendEvent('jira', { name: 'taskAssigned', payload: { taskId: task.id, assigneeId: assigneeId } });
     ctx.body = {
       task,
     };
@@ -32,20 +53,30 @@ export const createTaskRoute = createRouteSpec({
         id: z.number(),
         description: z.string(),
         assigneeId: z.number(),
+        resolved: z.boolean(),
       }),
     }),
   },
 });
 
-export const assignPendingTasksRoute = createRouteSpec({
+export const assignPendingTasksRoute = specFactory.createRouteSpec({
   method: 'post',
   path: '/tasks/assign',
   handler: async (ctx) => {
-    // auth
-    // getPopugWorkers()
-    // getPendingTasks()
-    // assignRandomlyStepByStep();
-    // produce task.assignedEvent
+    const accounts = await findUserAccounts();
+    const pendingTasks = await findPendingTasks();
+    for (const task of pendingTasks) {
+      const assigneeId = accounts[getRandomInt(accounts.length - 1)].id;
+      await updateTask(task.id, {
+        assigneeId,
+      });
+      await sendEvent('jira', { name: 'taskAssigned', payload: { taskId: task.id, assigneeId: assigneeId } });
+    }
+    ctx.status = 204;
   },
   validate: {},
 });
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}

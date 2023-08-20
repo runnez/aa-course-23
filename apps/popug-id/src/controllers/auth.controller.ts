@@ -3,19 +3,27 @@ import { createRouteSpec } from 'koa-zod-router';
 import { z } from 'zod';
 import { findAccountByEmailAndPassword } from '../models/account.model';
 
+type AccessTokenPayload = {
+  accountId: number;
+  role: string;
+}
+
+const jwtSecretToken = 'JWT SECRET KEY';
+
 export const sessionsRoute = createRouteSpec({
   method: 'post',
   path: '/sessions',
   handler: async (ctx) => {
     const { email, password } = ctx.request.body;
     const account = await findAccountByEmailAndPassword(email, password);
+    console.log(account);
     if (!account) {
-      ctx.status = 422;
-      return;
+      throw new Error('404');
     }
+    const payload: AccessTokenPayload = { accountId: account.id, role: account.role }
     const accessToken = jwt.sign(
-      { accountId: account.id },
-      process.env.TOKEN_KEY!,
+      payload,
+      jwtSecretToken,
       { expiresIn: "7d" }
     );
     ctx.body = {
@@ -37,13 +45,17 @@ export const verifyRoute = createRouteSpec({
   method: 'post',
   path: '/verify',
   handler: async (ctx) => {
-    const { accessToken } = ctx.request.headers;
-    jwt.verify(accessToken, process.env.TOKEN_KEY!);
-    ctx.status = 204;
+    const accessToken = ctx.request.headers['x-access-token'];
+    const payload = jwt.verify(accessToken, jwtSecretToken) as AccessTokenPayload;
+    ctx.body = payload;
   },
   validate: {
     headers: z.object({
-      accessToken: z.string(),
+      'x-access-token': z.string(),
+    }),
+    response: z.object({
+      accountId: z.number(),
+      role: z.string(),
     }),
   },
 });

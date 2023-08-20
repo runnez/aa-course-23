@@ -3,6 +3,7 @@ import { db } from '../database';
 
 export interface TaskTable {
   id: Generated<number>;
+  resolved: boolean
   assigneeId: number;
   description: string;
   createdAt: ColumnType<Date, string | undefined, never>
@@ -18,11 +19,24 @@ export const createTask = async ({ ...newAccount }: Omit<NewTask, 'id'>) => {
   }).returningAll().executeTakeFirstOrThrow()!;
 }
 
+export const updateTask = (id: number, taskUpdate: TaskUpdate) => {
+  return db.updateTable('tasks').where('id', '=', id).set(taskUpdate).execute();
+}
+
 export const findTasksByAssigneeId = async (id: number) => {
-  const account = await db
+  const tasks = await db
     .selectFrom('tasks')
     .selectAll()
     .where('tasks.assigneeId', '=', id)
-    .executeTakeFirst();
-  return account;
+    .execute();
+  return tasks;
+}
+
+export const findPendingTasks = async () => {
+  const tasks = await db
+    .selectFrom('tasks')
+    .selectAll()
+    .where('tasks.resolved', '=', false)
+    .execute();
+  return tasks;
 }

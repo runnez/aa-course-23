@@ -1,19 +1,19 @@
+import { processAccountEvent } from './consumers/account.consumer'
 import { kafka } from './lib/kafka'
 
 const consumer = kafka.consumer({ groupId: 'test-group' })
 
-const run = async () => {
+export const attachConsumers = async () => {
   await consumer.connect()
-  await consumer.subscribe({ topic: 'account', fromBeginning: true })
+  await consumer.subscribe({ topic: 'account' })
+  console.log('attachConsumers subscribed');
   await consumer.run({
-    eachMessage: async ({ topic, partition, message }) => {
-      console.log({
-        partition,
-        offset: message.offset,
-        value: message.value?.toString(),
-      })
+    eachMessage: async ({ topic, message }) => {
+      console.log('eachMessage topic', topic);
+      const event = JSON.parse(message.value?.toString() || '{}');
+      if (topic === 'account') {
+        await processAccountEvent(event)
+      }
     },
   })
 }
-
-run().catch(console.error)

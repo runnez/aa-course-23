@@ -15,11 +15,11 @@ export const createAccount = async ({ ...newAccount }: NewAccount) => {
   return db.insertInto('accounts').values({ ...newAccount }).returningAll().executeTakeFirstOrThrow()!;
 }
 
-export const getWorkers = async () => {
+export const findUserAccounts = async () => {
   const account = await db
     .selectFrom('accounts')
     .selectAll()
-    .where('accounts.role', '=', 'worker')
-    .executeTakeFirst();
+    .where('accounts.role', '=', 'user')
+    .execute();
   return account;
 }

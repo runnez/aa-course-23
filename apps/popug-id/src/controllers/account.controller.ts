@@ -1,8 +1,14 @@
 import { createRouteSpec } from 'koa-zod-router';
 import { z } from 'zod';
 import { db } from '../database';
-import { kafka, sendEvent } from '../lib/kafka';
+import { sendEvent } from '../lib/kafka';
 import { createAccount } from '../models/account.model';
+
+const AccountSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+  role: z.enum(['admin', 'user']),
+});
 
 export const createAccountRoute = createRouteSpec({
   method: 'post',
@@ -11,9 +17,9 @@ export const createAccountRoute = createRouteSpec({
     const newAccount = ctx.request.body.account;
     await db.transaction().execute(async (trx) => {
       const account = await createAccount(newAccount, { trx });
-      await sendEvent('accounts', {
+      await sendEvent('account', {
         name: 'accountCreated',
-        payload: { accountId: account.id },
+        payload: { account: AccountSchema.parse(account) },
       });
       ctx.body = {
         account,
