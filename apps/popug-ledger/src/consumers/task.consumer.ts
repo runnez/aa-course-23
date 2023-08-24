@@ -3,21 +3,21 @@ import { Task } from "../models/task.model";
 import { applyTransaction } from "../services/transaction.service";
 
 export async function handleTaskEvent(event: Event) {
-  const { payload, name } = event;
+  const { payload, name, version } = event;
   switch (name) {
     case EventName.TaskCreated: {
-      if (event.version === 1) {
+      if (version === 1) {
         await Task.insert({
           id: payload.task.id,
-          description: event.payload.task.description,
+          description: payload.task.description,
           fee: getRandomFee(),
           reward: getRandomReward(),
         });
       }
-      if (event.version === 2) {
+      if (version === 2) {
         await Task.insert({
           id: payload.task.id,
-          description: `--[${event.payload.task.jiraId}]--${event.payload.task.description}`,
+          description: `--[${payload.task.jiraId}]--${payload.task.description}`,
           fee: getRandomFee(),
           reward: getRandomReward(),
         });

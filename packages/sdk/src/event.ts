@@ -30,6 +30,7 @@ export const EventSchema =
   z.discriminatedUnion('name', [
     z.object({
       name: z.literal(EventName.AccountCreated),
+      version: z.literal(1),
       payload: AccountCreatedSchema,
     }),
     z.object({
@@ -44,6 +45,7 @@ export const EventSchema =
     }),
     z.object({
       name: z.literal(EventName.TaskAssigned),
+      version: z.literal(1),
       payload: z.object({
         taskId: z.number(),
         assigneeId: z.number(),
@@ -51,6 +53,7 @@ export const EventSchema =
     }),
     z.object({
       name: z.literal(EventName.TaskResolved),
+      version: z.literal(1),
       payload: z.object({
         taskId: z.number(),
         assigneeId: z.number(),
