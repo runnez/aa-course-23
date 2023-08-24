@@ -1,3 +1,3 @@
-import { createClient } from 'sdk';
+import { createAuthClient } from 'sdk';
 
-export const sdk = createClient();
+export const authSdk = createAuthClient();

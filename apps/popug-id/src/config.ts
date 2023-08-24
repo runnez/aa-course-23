@@ -1,0 +1,1 @@
+export const jwtSecretToken = 'JWT SECRET KEY';

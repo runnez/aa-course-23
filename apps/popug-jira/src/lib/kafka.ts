@@ -1,4 +1,5 @@
 import { Kafka } from 'kafkajs';
+import { Event, EventTopic } from 'sdk';
 
 export const kafka = new Kafka({
   clientId: 'my-app',
@@ -7,17 +8,18 @@ export const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-export const sendEvent = async (topic: string, event: {}) => {
-  console.log('sending event', topic, event);
-	await producer.connect();
+export const sendEvent = async (topic: EventTopic, data: Event | Event[]) => {
+  const messages = data instanceof Array ? data : [data];
+  console.log('sending event', topic, messages);
+  await producer.connect();
   await producer.send({
     topic,
-    messages: [
+    messages: messages.map(event => (
       {
         key: 'event',
         value: JSON.stringify(event),
-      },
-    ],
+      }
+    )),
   });
 }
 

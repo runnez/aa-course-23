@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { CreateTaskEndpoint, EventName, EventTopic, GetTasksEndpoint } from 'sdk';
 import { specFactory } from '../app';
 import { sendEvent } from '../lib/kafka';
 import { findUserAccounts } from '../models/account.model';
@@ -13,16 +13,7 @@ export const getTasksRoute = specFactory.createRouteSpec({
       tasks,
     };
   },
-  validate: {
-    response: z.object({
-      tasks: z.array(z.object({
-        id: z.number(),
-        description: z.string(),
-        assigneeId: z.number(),
-        resolved: z.boolean(),
-      })),
-    }),
-  },
+  validate: GetTasksEndpoint,
 });
 
 export const createTaskRoute = specFactory.createRouteSpec({
@@ -35,33 +26,20 @@ export const createTaskRoute = specFactory.createRouteSpec({
       assigneeId,
       resolved: false,
     });
-    await sendEvent('task', { name: 'taskCreated', payload: { task } });
-    await sendEvent('jira', { name: 'taskAssigned', payload: { taskId: task.id, assigneeId: assigneeId } });
+    await sendEvent(EventTopic.task, [
+      { name: EventName.TaskCreated, payload: { task } },
+      { name: EventName.TaskAssigned, payload: { taskId: task.id } }
+    ]);
     ctx.body = {
       task,
     };
   },
-  validate: {
-    body: z.object({
-      task: z.object({
-        description: z.string(),
-        assigneeId: z.number(),
-      })
-    }),
-    response: z.object({
-      task: z.object({
-        id: z.number(),
-        description: z.string(),
-        assigneeId: z.number(),
-        resolved: z.boolean(),
-      }),
-    }),
-  },
+  validate: CreateTaskEndpoint,
 });
 
-export const assignPendingTasksRoute = specFactory.createRouteSpec({
+export const shufflePendingTasksRoute = specFactory.createRouteSpec({
   method: 'post',
-  path: '/tasks/assign',
+  path: '/tasks/shuffe',
   handler: async (ctx) => {
     const accounts = await findUserAccounts();
     const pendingTasks = await findPendingTasks();
@@ -70,7 +48,7 @@ export const assignPendingTasksRoute = specFactory.createRouteSpec({
       await updateTask(task.id, {
         assigneeId,
       });
-      await sendEvent('jira', { name: 'taskAssigned', payload: { taskId: task.id, assigneeId: assigneeId } });
+      await sendEvent(EventTopic.task, { name: EventName.TaskAssigned, payload: { taskId: task.id } });
     }
     ctx.status = 204;
   },

@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { createRouteSpec } from 'koa-zod-router';
 import { z } from 'zod';
+import { jwtSecretToken } from '../config';
 import { findAccountByEmailAndPassword } from '../models/account.model';
 
 type AccessTokenPayload = {
   accountId: number;
   role: string;
 }
-
-const jwtSecretToken = 'JWT SECRET KEY';
 
 export const sessionsRoute = createRouteSpec({
   method: 'post',

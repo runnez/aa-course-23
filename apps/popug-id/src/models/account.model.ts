@@ -4,7 +4,7 @@ import { Database, db } from '../database';
 
 export interface AccountTable {
   id: Generated<number>;
-  role: string;
+  role: 'admin' | 'user';
   email: string;
   password: string;
   createdAt: ColumnType<Date, string | undefined, never>
