@@ -12,6 +12,14 @@ export const TaskSchema = z.object({
   resolved: z.boolean(),
 });
 
+export const TaskSchemaV2 = z.object({
+  id: z.number(),
+  jiraId: z.string(),
+  description: z.string(),
+  assigneeId: z.number(),
+  resolved: z.boolean(),
+});
+
 export const CreateTaskEndpoint = {
   body: z.object({
     task: NewTaskSchema

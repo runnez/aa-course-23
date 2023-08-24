@@ -1,8 +1,10 @@
+import { attachConsumers } from "./consumer";
 import { createServer } from "./server";
 
-const port = 4003;
 const server = createServer();
 
-server.listen(port, () => {
-  console.log(`api running on ${port}`);
+server.listen(4001, () => {
+  console.log('popug-jira is on port 4001');
 });
+
+attachConsumers().catch(console.error)

@@ -1,22 +1,20 @@
-import { json, urlencoded } from "body-parser";
-import express from "express";
-import morgan from "morgan";
-import cors from "cors";
+import Koa from 'koa';
+import zodRouter from 'koa-zod-router';
+import { authMiddleware } from './middlewares/auth.middleware';
+import { getBalance } from './controllers/balance.controller';
+import { getTransactions } from './controllers/transaction.controller';
 
 export const createServer = () => {
-  const app = express();
-  app
-    .disable("x-powered-by")
-    .use(morgan("dev"))
-    .use(urlencoded({ extended: true }))
-    .use(json())
-    .use(cors())
-    .get("/message/:name", (req, res) => {
-      return res.json({ message: `hello ${req.params.name}` });
-    })
-    .get("/healthz", (req, res) => {
-      return res.json({ ok: true });
-    });
-
+  const app = new Koa();
+  const router = zodRouter({
+    zodRouter: {
+      exposeRequestErrors: true,
+      exposeResponseErrors: true,
+    },
+  });
+  router.use(authMiddleware);
+  router.register(getBalance);
+  router.register(getTransactions);
+  app.use(router.routes());
   return app;
-};
+}
