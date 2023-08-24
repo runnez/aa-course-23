@@ -1,11 +1,20 @@
 import Koa from 'koa';
 import zodRouter from 'koa-zod-router';
-import { createTaskRoute } from './controllers/task.controller';
+import { authMiddleware } from './middlewares/auth.middleware';
+import { assignPendingTasksRoute, createTaskRoute, getTasksRoute } from './controllers/task.controller';
 
 export const createServer = () => {
   const app = new Koa();
-  const router = zodRouter();
+  const router = zodRouter({
+    zodRouter: {
+      exposeRequestErrors: true,
+      exposeResponseErrors: true,
+    },
+  });
+  router.use(authMiddleware);
   router.register(createTaskRoute);
+  router.register(getTasksRoute);
+  router.register(assignPendingTasksRoute);
   app.use(router.routes());
   return app;
 }
