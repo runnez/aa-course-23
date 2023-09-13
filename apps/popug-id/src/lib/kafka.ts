@@ -1,4 +1,5 @@
 import { Kafka } from 'kafkajs';
+import { Event } from 'sdk';
 
 export const kafka = new Kafka({
   clientId: 'my-app',
@@ -7,7 +8,7 @@ export const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-export const sendEvent = async (topic: string, event: {}) => {
+export const sendEvent = async (topic: string, event: Event) => {
 	await producer.connect()
   await producer.send({
     topic,
